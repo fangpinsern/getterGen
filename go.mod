@@ -1,4 +1,4 @@
-module github.com/fangpinsern/godemo
+module github.com/fangpinsern/getterGen
 
 go 1.22.0
 
