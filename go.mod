@@ -1,6 +1,6 @@
 module github.com/fangpinsern/getterGen
 
-go 1.22.0
+go 1.22
 
 require golang.org/x/tools v0.19.0
 
