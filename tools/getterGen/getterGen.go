@@ -191,7 +191,7 @@ func main() {
 	// Write to file.
 	outputName := ""
 	if outputName == "" {
-		baseName := fmt.Sprintf("%s_string.go", g.pkg.name)
+		baseName := fmt.Sprintf("%s_getters.go", g.pkg.name)
 		outputName = filepath.Join(".", strings.ToLower(baseName))
 	}
 	err := os.WriteFile(outputName, src, 0644)

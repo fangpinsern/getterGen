@@ -21,5 +21,3 @@ type Foo struct {
 ## Future updates
 
 Support non pointer types in struct - should not be too hard. Just a different format
-
-Testing final
