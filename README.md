@@ -3,7 +3,8 @@
 Tool to generate getters for your struct in packages
 
 ```
-go install github.com/fangpinsern/getterGen
+go get -u github.com/fangpinsern/getterGen
+go install github.com/fangpinsern/getterGen/tools/{insert tool name}
 ```
 
 Inspired/Modified from go tool stringers package.
