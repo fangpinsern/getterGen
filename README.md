@@ -22,3 +22,12 @@ type Foo struct {
 ## Future updates
 
 Support non pointer types in struct - should not be too hard. Just a different format
+
+```
+func (m *demo) GetArr() []*Item {
+	if m != nil {
+		return m.Item
+	}
+	return nil
+}
+```

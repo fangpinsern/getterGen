@@ -14,13 +14,28 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-const getterTemplate = `func (i *%[1]s) Get%[2]s() %[3]v {
+const addrTemplate = `func (i *%[1]s) Get%[2]s() %[3]v {
 	if i != nil && i.%[2]s != nil {
 		return %[5]si.%[2]s
 	}
 	return %[4]s
 }
+`
 
+const baseTemplate = `func (i *%[1]s) Get%[2]s() %[3]v {
+	if i != nil {
+		return i.%[2]s
+	}
+	return %[4]s
+}
+`
+
+const arrTemplate = `func (i *%[1]s) Get%[2]s() []%[3]v {
+	if i != nil {
+		return i.%[2]s
+	}
+	return nil
+}
 `
 
 // uintptr ignored
@@ -44,8 +59,80 @@ var (
 		"float64":    "0",
 		"complex64":  "0",
 		"complex128": "0",
+		"array":      "[]interface{}",
 	}
 )
+
+func (g *Generator) ptrTypeProcessing(field *ast.Field, structName string) {
+
+	fieldType := field.Type
+
+	star, ok := fieldType.(*ast.StarExpr)
+
+	if ok {
+		fieldType = star.X
+	} else {
+		fmt.Println("this is not a star type. caller should check")
+		return
+	}
+
+	fieldString := fmt.Sprintf("%s", fieldType)
+
+	deRef := "*"
+
+	defaultVal, ok := TypeDefaultValueMap[fieldString]
+	if !ok {
+		fieldString = "*" + fieldString
+		defaultVal = "nil"
+		deRef = ""
+	}
+	g.Printf(addrTemplate, structName, field.Names[0], fieldString, defaultVal, deRef)
+}
+
+func (g *Generator) baseTypeProcessing(field *ast.Field, structName string) {
+
+	fieldType := field.Type
+
+	fieldString := fmt.Sprintf("%s", fieldType)
+
+	defaultVal, ok := TypeDefaultValueMap[fieldString]
+	if !ok {
+		// loll this should not be the case ah...
+		defaultVal = fieldString + "{}"
+	}
+	g.Printf(baseTemplate, structName, field.Names[0], fieldString, defaultVal)
+}
+
+func (g *Generator) arrTypeProcessing(field *ast.Field, structName string) {
+	arr, ok := field.Type.(*ast.ArrayType)
+
+	if !ok {
+		fmt.Println("this is not a arr type. caller should check")
+		return
+	}
+
+	elementType := arr.Elt
+
+	_, ok = elementType.(*ast.MapType)
+	if ok {
+		fmt.Println("map type in array not supported")
+		return
+	}
+
+	isStar := false
+	star, ok := elementType.(*ast.StarExpr)
+	if ok {
+		elementType = star.X
+		isStar = true
+	}
+
+	fieldString := fmt.Sprintf("%s", elementType)
+
+	if isStar {
+		fieldString = "*" + fieldString
+	}
+	g.Printf(arrTemplate, structName, field.Names[0], fieldString)
+}
 
 func (g *Generator) structCheck(node ast.Node) bool {
 	t, ok := node.(*ast.TypeSpec)
@@ -66,25 +153,27 @@ func (g *Generator) structCheck(node ast.Node) bool {
 
 	for _, field := range x.Fields.List {
 
-		fieldType := field.Type
+		_, ok := field.Type.(*ast.MapType)
+		if ok {
+			fmt.Println("map type not supported")
+			continue
+		}
 
-		star, ok := field.Type.(*ast.StarExpr)
+		_, ok = field.Type.(*ast.ArrayType)
 
 		if ok {
-			fieldType = star.X
+			g.arrTypeProcessing(field, structName)
+			continue
 		}
 
-		fieldString := fmt.Sprintf("%s", fieldType)
+		_, ok = field.Type.(*ast.StarExpr)
 
-		deRef := "*"
-
-		defaultVal, ok := TypeDefaultValueMap[fieldString]
-		if !ok {
-			fieldString = "*" + fieldString
-			defaultVal = "nil"
-			deRef = ""
+		if ok {
+			g.ptrTypeProcessing(field, structName)
+			continue
 		}
-		g.Printf(getterTemplate, structName, field.Names[0], fieldString, defaultVal, deRef)
+
+		g.baseTypeProcessing(field, structName)
 	}
 
 	return true
