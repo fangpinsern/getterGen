@@ -200,7 +200,7 @@ func (i *Complex) GetArrStr() []string {
 	}
 	return nil
 }
-func (i *Complex) GetArrStruct() []*Complex {
+func (i *Complex) GetArrStruct() []*SecondStruct {
 	if i != nil {
 		return i.ArrStruct
 	}
@@ -229,4 +229,40 @@ func (i *SecondStruct) GetArrStruct() []*SecondStruct {
 		return i.ArrStruct
 	}
 	return nil
+}
+func (i *GetListDetailsRequest) GetListOrdering() uint64 {
+	if i != nil && i.ListOrdering != nil {
+		return *i.ListOrdering
+	}
+	return 0
+}
+func (i *GetListDetailsRequest) GetLimit() int32 {
+	if i != nil && i.Limit != nil {
+		return *i.Limit
+	}
+	return 0
+}
+func (i *GetListDetailsRequest) GetOffset() int32 {
+	if i != nil && i.Offset != nil {
+		return *i.Offset
+	}
+	return 0
+}
+func (i *GetListDetailsResponse) GetListItemInfos() []*ListItemInfo {
+	if i != nil {
+		return i.ListItemInfos
+	}
+	return nil
+}
+func (i *ListItemInfo) GetID() uint64 {
+	if i != nil && i.ID != nil {
+		return *i.ID
+	}
+	return 0
+}
+func (i *ListItemInfo) GetRestaurantID() uint64 {
+	if i != nil && i.RestaurantID != nil {
+		return *i.RestaurantID
+	}
+	return 0
 }

@@ -13,7 +13,7 @@ type Complex struct {
 	Str             string
 	PtrStr          *string
 	ArrStr          []string
-	ArrStruct       []*Complex
+	ArrStruct       []*SecondStruct
 	BaseStruct      SecondStruct
 	PtrStruct       *SecondStruct
 	MapTest         map[string]*SecondStruct
@@ -24,4 +24,20 @@ type Complex struct {
 type SecondStruct struct {
 	ArrStr    []string
 	ArrStruct []*SecondStruct
+}
+
+type GetListDetailsRequest struct {
+	ListOrdering *uint64
+	Limit        *int32
+	Offset       *int32
+}
+
+type GetListDetailsResponse struct {
+	ListItemInfos   []*ListItemInfo            `json:"listItemInfos"`
+	RestaurantInfos map[uint64]*RestaurantInfo `json:"restaurantInfos"`
+}
+
+type ListItemInfo struct {
+	ID           *uint64 `json:"id"`
+	RestaurantID *uint64 `json:"restaurantId"`
 }
